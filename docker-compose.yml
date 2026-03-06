@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    ports: [ "8080:80" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: pedidos_db
+      DB_USER: pedidos_user
+      DB_PASS: secret
+    volumes:
+      - .:/var/www/html
+      # Montar directorios donde www-data necesita escritura sin chown externo
+      # - ./storage:/var/www/html/storage
+      # - ./bootstrap/cache:/var/www/html/bootstrap/cache
+
+  db:
+    image: mysql:8.0
+    ports: [ "3306:3306" ]
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: pedidos_db
+      MYSQL_USER: pedidos_user
+      MYSQL_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./database/procedures.sql:/docker-entrypoint-initdb.d/02_procedures.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/03_seed.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-upedidos_user", "-psecret" ]
+      interval: 10s
+      retries: 5
+
+volumes:
+  db_data:
