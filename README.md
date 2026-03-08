@@ -7,7 +7,7 @@ Aplicación web de gestión de ventas construyendo una arquitectura monolítica 
 ```bash
 git clone https://github.com/cindymarintorres/sistema-pedidos.git
 cd sistema-pedidos
-docker-compose up -d --build
+docker-compose up -d --build --no-cache
 ```
 
 _(El esquema BD y los seeds se ejecutan automáticamente en el build del contenedor db)_.
