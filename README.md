@@ -9,7 +9,7 @@ docker compose up -d
 docker compose exec app composer install
 ```
 
-*(El esquema BD y los seeds se ejecutan automáticamente en el build del contenedor db)*.
+_(El esquema BD y los seeds se ejecutan automáticamente en el build del contenedor db)_.
 
 ## 2. ¿Cómo accedo a la app?
 
@@ -24,21 +24,21 @@ docker compose exec app php artisan test
 
 ## 4. Endpoints Disponibles
 
-| Método | Endpoint                    | Descripción                                      |
-|--------|-----------------------------|--------------------------------------------------|
-| GET  | `/api/productos`            | Lista productos paginados y con búsqueda      |
-| POST   | `/api/productos`            | Crea un nuevo producto (SKU único)               |
-| GET  | `/api/productos/{id}`       | Obtiene un producto por ID                       |
-| PUT    | `/api/productos/{id}`       | Actualiza información y stock de un producto   |
-| DELETE | `/api/productos/{id}`       | Elimina un producto (si no tiene pedidos)      |
-| GET  | `/api/pedidos`              | Lista el historial y resumen de todos los pedidos|
-| POST   | `/api/pedidos`              | Crea un nuevo pedido a partir de items         |
-| GET  | `/api/pedidos/{id}`         | Detalle completo de un pedido con sus items    |
-| GET  | `/api/health`               | Ping para verificar el estado de la API          |
+| Método | Endpoint              | Descripción                                       |
+| ------ | --------------------- | ------------------------------------------------- |
+| GET    | `/api/productos`      | Lista productos paginados y con búsqueda          |
+| POST   | `/api/productos`      | Crea un nuevo producto (SKU único)                |
+| GET    | `/api/productos/{id}` | Obtiene un producto por ID                        |
+| PUT    | `/api/productos/{id}` | Actualiza información y stock de un producto      |
+| DELETE | `/api/productos/{id}` | Elimina un producto (si no tiene pedidos)         |
+| GET    | `/api/pedidos`        | Lista el historial y resumen de todos los pedidos |
+| POST   | `/api/pedidos`        | Crea un nuevo pedido a partir de items            |
+| GET    | `/api/pedidos/{id}`   | Detalle completo de un pedido con sus items       |
+| GET    | `/api/health`         | Ping para verificar el estado de la API           |
 
 ## 5. Seguridad: Permisos del usuario MySQL
 
-Tal y como indica el principio de mínima exposición para este diseño de arquitectura, la aplicación **NO** necesita realizar sentencias de Data Manipulation Language (DML) ni de Data Query Language (DQL) directamente sobre las tablas. 
+Tal y como indica el principio de mínima exposición para este diseño de arquitectura, la aplicación **NO** necesita realizar sentencias de Data Manipulation Language (DML) ni de Data Query Language (DQL) directamente sobre las tablas.
 
 Por lo tanto, el usuario transaccional `pedidos_user` de MySQL **SOLAMENTE** necesita el permiso `EXECUTE`:
 
@@ -52,12 +52,25 @@ GRANT EXECUTE ON pedidos_db.* TO 'pedidos_user'@'%';
 Dado que la aplicación web se conecta y está restringida a usar el usuario transaccional `pedidos_user` (que solo tiene permisos `EXECUTE` para los Stored Procedures), **para ver las tablas, hacer SELECTs manuales, o crear nuevas tablas / SPs, debes conectarte como usuario `root`.**
 
 ### Credenciales de Root:
+
 - **Host:** `127.0.0.1` o `localhost` (Puerto: `3306`)
 - **Usuario:** `root`
 - **Contraseña:** `rootsecret`
 - **Base de Datos:** `pedidos_db`
 
 ### Acceso interactivo por CLI de Docker:
+
 ```bash
 docker compose exec db mysql -u root -prootsecret pedidos_db
 ```
+
+## 7. Pruebas de API (Postman Collection)
+
+Para facilitar la interacción y prueba de todos los endpoints disponibles, el proyecto incluye una colección completa de Postman:
+
+- **Archivo:** `sistema_pedidos_postman_collection.json` (ubicado en la raíz del proyecto).
+- **Contenido:** 14 peticiones preconfiguradas con cabeceras correctas (`Accept: application/json`), cuerpos de prueba para simular éxitos y errores (404, 422), y variables de entorno (`{{baseUrl}}`).
+- **Uso:**
+    1. Abre Postman y haz clic en **Import**.
+    2. Selecciona el archivo `sistema_pedidos_postman_collection.json`.
+    3. La colección ya trae la variable `baseUrl` configurada por defecto a `http://localhost:8080`.

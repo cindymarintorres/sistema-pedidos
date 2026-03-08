@@ -1,0 +1,271 @@
+{
+  "info": {
+    "name": "Sistema de Pedidos Laravel API",
+    "description": "Colección completa de Endpoints del Sistema de Pedidos basado en Stored Procedures y arquitectura limpia.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "01. Obtener Listado de Productos Paginado",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos?search=&sort=id&page=1&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "sort", "value": "id" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "5" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "02. Buscar Producto por SKU o Nombre",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos?search=LAP&sort=precio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"],
+              "query": [
+                { "key": "search", "value": "LAP" },
+                { "key": "sort", "value": "precio" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03. Ver Detalle de Producto por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "1"]
+            }
+          }
+        },
+        {
+          "name": "04. Ver Detalle de Producto - 404 No Encontrado",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "9999"]
+            }
+          }
+        },
+        {
+          "name": "05. Crear Producto Nuevo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sku\": \"NEW-PROD-001\",\n    \"nombre\": \"Nuevo Producto de Prueba\",\n    \"precio\": 99.99,\n    \"stock\": 10\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "06. Crear Producto - Error de Validación 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sku\": \"ERRO@!\",\n    \"nombre\": \"\",\n    \"precio\": -15,\n    \"stock\": -1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "07. Actualizar Producto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sku\": \"LAP-X100-PRO\",\n    \"nombre\": \"Laptop ThinkPad X100 Pro Actualizada\",\n    \"precio\": 899.99,\n    \"stock\": 18\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "1"]
+            }
+          }
+        },
+        {
+          "name": "08. Eliminar Producto",
+          "request": {
+            "method": "DELETE",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/11",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "11"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "item": [
+        {
+          "name": "01. Listar Historial de Pedidos",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "02. Listar Pedidos por Fechas",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos?desde=2024-01-01&hasta=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos"],
+              "query": [
+                { "key": "desde", "value": "2024-01-01" },
+                { "key": "hasta", "value": "2024-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03. Crear Pedido Exitoso (> $100 Descuento)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        { \"producto_id\": 1, \"cantidad\": 1 },\n        { \"producto_id\": 2, \"cantidad\": 2 }\n    ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "04. Crear Pedido - Stock Insuficiente Error BD 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        { \"producto_id\": 4, \"cantidad\": 9999 }\n    ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "05. Obtener Detalle de un Pedido",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Ping Healthcheck",
+          "request": {
+            "method": "GET",
+            "header": [
+               { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}
