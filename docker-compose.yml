@@ -10,6 +10,7 @@ services:
       DB_NAME: pedidos_db
       DB_USER: pedidos_user
       DB_PASS: secret
+      TZ: America/Guayaquil
     volumes:
       - .:/var/www/html
       # Montar directorios donde www-data necesita escritura sin chown externo
@@ -24,6 +25,7 @@ services:
       MYSQL_DATABASE: pedidos_db
       MYSQL_USER: pedidos_user
       MYSQL_PASSWORD: secret
+      TZ: America/Guayaquil
     volumes:
       - db_data:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
