@@ -7,7 +7,7 @@ Aplicación web de gestión de ventas construyendo una arquitectura monolítica 
 ```bash
 git clone https://github.com/cindymarintorres/sistema-pedidos.git
 cd sistema-pedidos
-docker-compose up -d --build --no-cache
+docker-compose build --no-cache && docker-compose up -d
 ```
 
 _(El esquema BD y los seeds se ejecutan automáticamente en el build del contenedor db)_.
@@ -75,3 +75,21 @@ Para facilitar la interacción y prueba de todos los endpoints disponibles, el p
     1. Abre Postman y haz clic en **Import**.
     2. Selecciona el archivo `sistema_pedidos_postman_collection.json`.
     3. La colección ya trae la variable `baseUrl` configurada por defecto a `http://localhost:8080`.
+
+## 8. Comportamiento del Carrito (Checkout)
+
+El carrito de compras guarda su estado en el `localStorage` del navegador. Esto significa:
+
+- El carrito **persiste** aunque recargues la página o reinicies Docker.
+- El carrito **no se comparte** entre navegadores ni entre usuarios.
+- El carrito **sí se limpia** al confirmar un pedido exitosamente.
+
+Si necesitas vaciar el carrito manualmente durante pruebas, abre las herramientas
+del navegador y ejecuta esto en la consola:
+
+```javascript
+localStorage.clear();
+location.reload();
+```
+
+O abre la aplicación en una ventana de incógnito para empezar con el carrito vacío.

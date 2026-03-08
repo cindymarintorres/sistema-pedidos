@@ -1,25 +1,27 @@
 services:
   app:
     build: .
-    ports: [ "8080:80" ]
+    ports:
+      - "8080:80"
     depends_on:
       db:
         condition: service_healthy
     environment:
+      DB_CONNECTION: mysql
       DB_HOST: db
-      DB_NAME: pedidos_db
-      DB_USER: pedidos_user
-      DB_PASS: secret
+      DB_PORT: 3306
+      DB_DATABASE: pedidos_db
+      DB_USERNAME: pedidos_user
+      DB_PASSWORD: secret
       TZ: America/Guayaquil
     volumes:
       - .:/var/www/html
-      # Montar directorios donde www-data necesita escritura sin chown externo
-      # - ./storage:/var/www/html/storage
-      # - ./bootstrap/cache:/var/www/html/bootstrap/cache
 
   db:
     image: mysql:8.0
-    ports: [ "3306:3306" ]
+    command: --skip-name-resolve #MySQL debe ignoras busquedas DNS
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: rootsecret
       MYSQL_DATABASE: pedidos_db
@@ -32,7 +34,8 @@ services:
       - ./database/procedures.sql:/docker-entrypoint-initdb.d/02_procedures.sql
       - ./database/seed.sql:/docker-entrypoint-initdb.d/03_seed.sql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-upedidos_user", "-psecret" ]
+      #test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-upedidos_user", "-psecret"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootsecret"]
       interval: 10s
       retries: 5
 
