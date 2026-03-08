@@ -16,12 +16,20 @@ services:
       TZ: America/Guayaquil
     volumes:
       - .:/var/www/html
+    command: >
+      sh -c "
+      [ -f .env ] || cp .env.example .env;
+      grep -q '^APP_KEY=base64:' .env || php artisan key:generate --force;
+      composer install --no-interaction --optimize-autoloader --no-scripts;
+      php artisan optimize:clear;
+      apache2-foreground
+      "
 
   db:
     image: mysql:8.0
-    command: --skip-name-resolve #MySQL debe ignoras busquedas DNS
     ports:
       - "3306:3306"
+    command: --skip-name-resolve #MySQL debe ignoras busquedas DNS
     environment:
       MYSQL_ROOT_PASSWORD: rootsecret
       MYSQL_DATABASE: pedidos_db
@@ -34,7 +42,6 @@ services:
       - ./database/procedures.sql:/docker-entrypoint-initdb.d/02_procedures.sql
       - ./database/seed.sql:/docker-entrypoint-initdb.d/03_seed.sql
     healthcheck:
-      #test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-upedidos_user", "-psecret"]
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootsecret"]
       interval: 10s
       retries: 5
