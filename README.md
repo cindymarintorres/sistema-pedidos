@@ -5,8 +5,9 @@ Aplicación web de gestión de ventas construyendo una arquitectura monolítica 
 ## 1. ¿Cómo levanto esto con Docker? (máximo 3 comandos)
 
 ```bash
-docker compose up -d
-docker compose exec app composer install
+git clone https://github.com/cindymarintorres/sistema-pedidos.git
+cd sistema-pedidos
+docker-compose up -d --build
 ```
 
 _(El esquema BD y los seeds se ejecutan automáticamente en el build del contenedor db)_.
