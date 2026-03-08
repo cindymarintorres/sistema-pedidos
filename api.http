@@ -1,0 +1,138 @@
+@baseUrl = http://localhost:8080
+
+###
+# ==========================================
+# API PRODUCTOS
+# ==========================================
+
+### Obtener Listado de Productos (Éxito)
+GET {{baseUrl}}/api/productos?search=&sort=id&page=1&limit=5
+Accept: application/json
+
+### Obtener Listado de Productos Filtrado por SKU (Éxito)
+GET {{baseUrl}}/api/productos?search=LAP&sort=precio
+Accept: application/json
+
+### Obtener un Producto Específico (Éxito)
+GET {{baseUrl}}/api/productos/1
+Accept: application/json
+
+### Obtener un Producto Inexistente (Error 404)
+GET {{baseUrl}}/api/productos/9999
+Accept: application/json
+
+### Crear un Producto Nuevo (Éxito)
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+Accept: application/json
+
+{
+    "sku": "NEW-PROD-001",
+    "nombre": "Nuevo Producto de Prueba",
+    "precio": 99.99,
+    "stock": 10
+}
+
+### Crear un Producto con SKU Duplicado (Error 409)
+# (Ejecutar nuevamente después de crear el producto anterior)
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+Accept: application/json
+
+{
+    "sku": "NEW-PROD-001",
+    "nombre": "Nuevo Producto Fallido",
+    "precio": 50.00,
+    "stock": 5
+}
+
+### Crear Producto con Datos de Validación Malsanos (Error 422)
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+Accept: application/json
+
+{
+    "sku": "ERRO@!",
+    "nombre": "",
+    "precio": -15,
+    "stock": -1
+}
+
+### Actualizar Producto Existente (Éxito)
+PUT {{baseUrl}}/api/productos/1
+Content-Type: application/json
+Accept: application/json
+
+{
+    "sku": "LAP-X100-PRO",
+    "nombre": "Laptop ThinkPad X100 Pro Actualizada",
+    "precio": 899.99,
+    "stock": 18
+}
+
+### Eliminar un Producto (Éxito)
+# Primero crea un producto ID temporal que sepas que no tiene un pedido
+DELETE {{baseUrl}}/api/productos/11
+Accept: application/json
+
+
+###
+# ==========================================
+# API PEDIDOS
+# ==========================================
+
+### Listar Historial de Pedidos (Éxito)
+GET {{baseUrl}}/api/pedidos
+Accept: application/json
+
+### Listar Pedidos Filtrados por Fecha (Éxito)
+GET {{baseUrl}}/api/pedidos?desde=2024-01-01&hasta=2024-12-31
+Accept: application/json
+
+### Crear Pedido Válido y Suficiente Stock (> $100 activa Descuento 10%) (Éxito)
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+Accept: application/json
+
+{
+    "items": [
+        { "producto_id": 1, "cantidad": 1 },
+        { "producto_id": 2, "cantidad": 2 }
+    ]
+}
+
+### Crear Pedido Vacío (Error Validación 422)
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+Accept: application/json
+
+{
+    "items": []
+}
+
+### Crear Pedido con Stock Insuficiente (Error Negocio Database 422)
+# Suponiendo que el producto 4 tiene stock de 10
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+Accept: application/json
+
+{
+    "items": [
+        { "producto_id": 4, "cantidad": 9999 }
+    ]
+}
+
+### Obtener Detalle de un Pedido Existente (Éxito)
+# Reemplazar con el ID que te haya retornado la creación
+GET {{baseUrl}}/api/pedidos/1
+Accept: application/json
+
+
+###
+# ==========================================
+# HEALTHCHECK
+# ==========================================
+
+### Healthcheck básico
+GET {{baseUrl}}/api/health
+Accept: application/json

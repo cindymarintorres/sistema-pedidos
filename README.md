@@ -1,59 +1,63 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Pedidos - Arquitectura Orientada a Datos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicación web de gestión de ventas construyendo una arquitectura monolítica clara en Laravel 12 con operaciones de base de datos estrictamente encapsuladas en Stored Procedures.
 
-## About Laravel
+## 1. ¿Cómo levanto esto con Docker? (máximo 3 comandos)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```bash
+docker compose up -d
+docker compose exec app composer install
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+*(El esquema BD y los seeds se ejecutan automáticamente en el build del contenedor db)*.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 2. ¿Cómo accedo a la app?
 
-## Learning Laravel
+- **Frontend Blade:** Abre [http://localhost:8080](http://localhost:8080) en tu navegador web.
+- **REST API:** Usa la base `http://localhost:8080/api` (ej: `/api/productos`).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 3. ¿Cómo corro los tests?
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+docker compose exec app php artisan test
+```
 
-## Laravel Sponsors
+## 4. Endpoints Disponibles
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Método | Endpoint                    | Descripción                                      |
+|--------|-----------------------------|--------------------------------------------------|
+| GET  | `/api/productos`            | Lista productos paginados y con búsqueda      |
+| POST   | `/api/productos`            | Crea un nuevo producto (SKU único)               |
+| GET  | `/api/productos/{id}`       | Obtiene un producto por ID                       |
+| PUT    | `/api/productos/{id}`       | Actualiza información y stock de un producto   |
+| DELETE | `/api/productos/{id}`       | Elimina un producto (si no tiene pedidos)      |
+| GET  | `/api/pedidos`              | Lista el historial y resumen de todos los pedidos|
+| POST   | `/api/pedidos`              | Crea un nuevo pedido a partir de items         |
+| GET  | `/api/pedidos/{id}`         | Detalle completo de un pedido con sus items    |
+| GET  | `/api/health`               | Ping para verificar el estado de la API          |
 
-### Premium Partners
+## 5. Seguridad: Permisos del usuario MySQL
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Tal y como indica el principio de mínima exposición para este diseño de arquitectura, la aplicación **NO** necesita realizar sentencias de Data Manipulation Language (DML) ni de Data Query Language (DQL) directamente sobre las tablas. 
 
-## Contributing
+Por lo tanto, el usuario transaccional `pedidos_user` de MySQL **SOLAMENTE** necesita el permiso `EXECUTE`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```sql
+GRANT EXECUTE ON pedidos_db.* TO 'pedidos_user'@'%';
+-- Se aseguran de REVOKE SELECT, INSERT, UPDATE, DELETE privileges
+```
 
-## Code of Conduct
+## 6. Administración de la Base de Datos (Root)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Dado que la aplicación web se conecta y está restringida a usar el usuario transaccional `pedidos_user` (que solo tiene permisos `EXECUTE` para los Stored Procedures), **para ver las tablas, hacer SELECTs manuales, o crear nuevas tablas / SPs, debes conectarte como usuario `root`.**
 
-## Security Vulnerabilities
+### Credenciales de Root:
+- **Host:** `127.0.0.1` o `localhost` (Puerto: `3306`)
+- **Usuario:** `root`
+- **Contraseña:** `rootsecret`
+- **Base de Datos:** `pedidos_db`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Acceso interactivo por CLI de Docker:
+```bash
+docker compose exec db mysql -u root -prootsecret pedidos_db
+```
